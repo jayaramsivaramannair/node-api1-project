@@ -12,36 +12,35 @@ server.get("/", (req, res) => {
     res.json({ message: "Hello World to Everyone!" })
 })
 
-server.get("/api/users", (req, res) => {
+server.get("/api/users", async (req, res) => {
     //since a promise is being returned from find function --- use then and catch
-    db.find()
-        .then((response) => {
-            res.json(response)
-        })
-        .catch((err) => {
-            res.status(500).json({
-                message: "The users information could not be retrieved"
-            })
-            console.log(err)
-        })
+    try {
+        const users = await db.find();
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ message: "The users information could not be retrieved" })
+        console.log(error);
+    }
 })
 
-server.get("/api/users/:id", (req, res) => {
-    db.findById(req.params.id)
-        .then((response) => {
-            (response) ?
-                res.json(response) :
-                res.status(400).json({
-                    message: "The user with the specified ID does not exist"
-                })
-        })
-        .catch((err) => {
-            res.status(500).json({
-                message: "The user information could not be retrieved"
+server.get("/api/users/:id", async (req, res) => {
+    try {
+        const user = await db.findById(req.params.id)
+        if (user) {
+            res.json(user);
+        } else {
+            res.status(400).json({
+                message: "The user with the specified ID does not exist"
             })
-            console.log(err)
+        }
+    } catch (error) {
+        res.status(500).json({
+            message: "The user information could not be retrieved"
         })
+        console.log(error)
+    }
 })
+
 
 server.post("/api/users", (req, res) => {
     //Checks whether the user object had name or bio properties
