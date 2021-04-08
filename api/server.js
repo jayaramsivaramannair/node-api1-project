@@ -82,6 +82,32 @@ server.delete("/api/users/:id", (req, res) => {
         })
 })
 
+server.put("/api/users/:id", (req, res) => {
+    //Checks whether the user object had name or bio properties
+    if (!(req.body.hasOwnProperty('name') && req.body.hasOwnProperty('bio'))) {
+        res.status(400).json({
+            message: "Please provide name and bio for the user"
+        })
+    } else {
+        const updatedUser = { name: req.body.name, bio: req.body.bio }
+        db.update(req.params.id, updatedUser)
+            .then((response) => {
+                if (!response) {
+                    res.status(404).json({
+                        message: "The user with the specified ID does not exist"
+                    })
+                } else {
+                    res.status(200).json(response)
+                }
+            })
+            .catch((err) => {
+                res.status(500).json({
+                    message: "The user information could not be modified"
+                })
+            })
+    }
+})
+
 
 
 module.exports = server; // EXPORT YOUR SERVER instead of {}
